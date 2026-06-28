@@ -1,7 +1,7 @@
 //! End-to-end checks of the `telltaled` binary (M1, #7 and #8):
 //! - sample-first: the daemon emits a `load …` line immediately on start.
-//! - graceful shutdown: SIGTERM wakes the interruptible wait and the daemon
-//!   exits 0 promptly, rather than waiting out the full 60 s interval.
+//! - graceful shutdown: SIGTERM and SIGINT each wake the interruptible wait
+//!   and the daemon exits 0 promptly, rather than waiting out the full 60 s interval.
 
 use std::io::{BufRead as _, BufReader};
 use std::process::{Command, Stdio};
@@ -77,5 +77,49 @@ fn sigterm_causes_clean_prompt_shutdown() {
         ),
         Ok(Err(e)) => panic!("child.wait() failed: {e}"),
         Err(_) => panic!("telltaled did not exit within 2 s after SIGTERM"),
+    }
+}
+
+#[test]
+fn sigint_causes_clean_prompt_shutdown() {
+    let mut child = Command::new(BIN)
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("the telltaled binary should be runnable");
+
+    // Verify sample-first line arrives before the signal.
+    let stdout = child.stdout.take().expect("stdout is piped");
+    let mut reader = BufReader::new(stdout);
+    let mut first_line = String::new();
+    reader
+        .read_line(&mut first_line)
+        .expect("should read at least one line before SIGINT");
+    assert!(
+        first_line.trim_end().starts_with("load "),
+        "expected a `load …` line before SIGINT, got {:?}",
+        first_line,
+    );
+
+    // Send SIGINT via `kill` (avoids unsafe libc / nix dev-dep).
+    let pid = child.id();
+    Command::new("kill")
+        .arg("-INT")
+        .arg(pid.to_string())
+        .status()
+        .expect("`kill` command should run");
+
+    // The signal must wake the interruptible wait; assert exit 0 within 2 s.
+    let (tx, rx) = mpsc::channel();
+    std::thread::spawn(move || {
+        let _ = tx.send(child.wait());
+    });
+    match rx.recv_timeout(Duration::from_secs(2)) {
+        Ok(Ok(status)) => assert!(
+            status.success(),
+            "expected exit 0 after SIGINT, got {:?}",
+            status,
+        ),
+        Ok(Err(e)) => panic!("child.wait() failed: {e}"),
+        Err(_) => panic!("telltaled did not exit within 2 s after SIGINT"),
     }
 }
