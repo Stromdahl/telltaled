@@ -1,3 +1,9 @@
+<!-- EDITOR NOTE: never write an exclamation mark immediately followed by a
+     backtick in this file. Sandcastle reads that sequence as "run the command
+     between the next pair of backticks" inside the sandbox (its shell-expansion
+     syntax). Inline code for the panic/todo macros is the easy trap: write them
+     without the trailing bang. This harness uses NO shell expansion. -->
+
 # Task: telltaled issue #{{ISSUE_NUMBER}} — {{ISSUE_TITLE}}
 
 You are an autonomous coding agent working in the **telltaled** repository — a
@@ -29,8 +35,8 @@ implement exactly what it specifies, no more.
 ## How to work
 
 - Follow the **TDD** loop in AGENTS.md: write a failing test → implement → refactor.
-- Honor the guardrails: `#![forbid(unsafe_code)]`, no `unwrap`/`expect`/`panic!`/`todo!`
-  in production code, and the complexity / file-length / argument-count thresholds.
+- Honor the guardrails: `#![forbid(unsafe_code)]`, no `unwrap`/`expect`/`panic`/`todo`/`unimplemented`
+  macros in production code, and the complexity / file-length / argument-count thresholds.
 - The gate is **`just check`** (fmt-check → clippy `-D warnings` → test → file-length).
   It MUST be green before you finish. Run it; fix anything it reports.
 - Stay within the brief's scope. Anything under "Out of scope" is for another issue.
