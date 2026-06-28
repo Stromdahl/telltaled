@@ -75,6 +75,17 @@ const issue = pickIssue();
 const branch = `agent/issue-${issue.number}`;
 console.log(`▶ #${issue.number}: ${issue.title}  →  ${branch}`);
 
+// A prior (e.g. failed) run may have left this branch anchored at an old commit;
+// sandcastle's named-branch strategy reuses an existing branch rather than
+// re-cutting it from HEAD. Delete any stale local copy so the agent starts from
+// current HEAD. (Only the local ref — an open remote branch/PR is left alone.)
+try {
+  execFileSync("git", ["branch", "-D", branch], { cwd: REPO, stdio: "ignore" });
+  console.log(`  (cleared stale local branch ${branch})`);
+} catch {
+  // No such branch — nothing to clear.
+}
+
 // Grab the lock on the host before launching the agent.
 gh(["issue", "edit", String(issue.number), "--remove-label", READY, "--add-label", LOCK]);
 
