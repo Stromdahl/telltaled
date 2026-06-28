@@ -41,6 +41,8 @@ A "telltale" is an indicator that reveals an otherwise-hidden condition — orig
 - Conventions: unit `telltaled.service`; config under `/etc/telltaled/` (or `~/.config/telltaled/`); binary `telltaled`.
 - **Open action:** verify `telltaled` (and fallback `telltale-stats`) availability on crates.io before first publish.
 
+> Update 2026-06-28: `telltaled` and `telltale-stats` both confirmed available on crates.io (registry API returns 404). Open action resolved.
+
 ## Pros and Cons of the Options
 
 ### `telltaled`
