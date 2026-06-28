@@ -38,7 +38,16 @@ overhead for capability, overhead wins; if you must spend it, spend it on purpos
   test so a vacuous "reject everything" implementation can't pass.
 - **Issues**: tracked on **GitHub Issues** (`gh issue list` / `gh issue create`).
   Create an issue before starting work and reference it as `#N` in commits and
-  PRs.
+  PRs. Large issues are decomposed into child **sub-issues** carrying a
+  self-contained execution brief (entry points, steps, verify, acceptance
+  criteria).
+- **Grabbing work** (agent queue): a sub-issue/issue labelled `ready` is an
+  unblocked brief free to pick up. To grab it, swap `ready` → `in-progress` (the
+  lock) before starting; on completion, close it and move any dependent issue
+  whose blockers are now all closed from `blocked` → `ready`. `blocked` means
+  unmet dependencies — don't start. Status labels are queue bookkeeping: commit
+  them promptly and directly on `main` (exempt from "branch first") so concurrent
+  sessions see an accurate queue.
 - **Milestones**: work climbs a milestone ladder (M0, M1, …) — each milestone a
   thin, shippable slice that ends with the gate green, not a big-bang. The current
   milestone is noted in the README.
