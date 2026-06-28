@@ -37,3 +37,7 @@ See [`AGENTS.md`](AGENTS.md) for the guardrail rationale and the TDD + docs-firs
   `/etc/telltaled/` (or `~/.config/telltaled/`).
 - **Issues:** tracked in GitHub Issues (`gh issue list`); reference as `#N`.
 - **Commits:** one conventional-commit subject line — see [`docs/COMMIT_STYLE.md`](docs/COMMIT_STYLE.md).
+
+## License
+
+Licensed under either of [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE) at your option.

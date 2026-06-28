@@ -5,6 +5,7 @@ members = ["crates/telltaled"]
 [workspace.package]
 edition = "2024"
 rust-version = "1.85"
+license = "MIT OR Apache-2.0"
 
 # Code-quality guardrails, inherited by every member via `[lints] workspace = true`.
 # Levels are `warn`; `just check` runs `clippy -D warnings` to fail the gate on any

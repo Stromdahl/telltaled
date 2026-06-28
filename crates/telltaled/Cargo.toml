@@ -3,6 +3,7 @@ name = "telltaled"
 version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
+license.workspace = true
 description = "System telemetry daemon: surfaces the hidden state of a machine."
 publish = false               # personal/unpublished; flip to publish deliberately.
 
