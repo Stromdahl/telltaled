@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Sandcastle agent-orchestration harness for the telltaled repo (see .sandcastle/).",
   "scripts": {
-    "sandcastle": "tsx .sandcastle/main.mts",
+    "sandcastle": "tsx .sandcastle/run.mts",
+    "sandcastle:iterate": "tsx .sandcastle/iterate.mts",
     "sandcastle:build-image": "sandcastle docker build-image"
   },
   "devDependencies": {
