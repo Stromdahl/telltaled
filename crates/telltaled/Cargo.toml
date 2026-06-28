@@ -13,7 +13,7 @@ publish = false               # personal/unpublished; flip to publish deliberate
 [dependencies]
 
 [dev-dependencies]
-# proptest = "1"              # property tests for invariants; uncomment when you need it.
+proptest = "1"                # property tests for the parser invariants (issues/001).
 
 # Inherit the workspace-wide quality guardrails (see root Cargo.toml).
 [lints]

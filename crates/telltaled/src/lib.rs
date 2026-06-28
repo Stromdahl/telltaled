@@ -8,8 +8,11 @@
 //! Overriding constraint: **low host overhead** — measuring a machine must never
 //! meaningfully perturb it (see `AGENTS.md`).
 //!
-//! This is scaffolding. The first real slice is tracked in `issues/001`; per the
-//! TDD workflow, it starts with a failing test.
+//! The first collector is [`loadavg`] (M0, `issues/001`): a pure parser over
+//! `/proc/loadavg`. New signals follow the same shape — pure logic here, I/O in
+//! the shim.
+
+pub mod loadavg;
 
 /// The running daemon's version, taken from the crate metadata.
 #[must_use]
