@@ -39,16 +39,14 @@ const issue = pickIssue();
 const branch = branchFor(issue.number);
 console.log(`▶ #${issue.number}: ${issue.title}  →  ${branch}`);
 
-// A prior (e.g. failed) run may have left this branch at an old commit;
-// sandcastle's named-branch strategy reuses an existing branch rather than
-// re-cutting it from HEAD. Delete any stale local copy so the agent starts from
-// current HEAD. (Only the local ref — an open remote branch/PR is left alone.)
-try {
-  git(["branch", "-D", branch], { stdio: "inherit" });
-  console.log(`  (cleared stale local branch ${branch})`);
-} catch {
-  // No such branch — nothing to clear.
-}
+// Cut the agent branch from the up-to-date integration base, NOT local HEAD.
+// Local `main` can drift from `origin/${BASE}` (e.g. a teammate merged a PR you
+// haven't pulled), and sandcastle's named-branch strategy reuses whatever commit
+// `branch` already points at. Forcing `branch` to `origin/${BASE}` here makes the
+// base deterministic and current, and overwrites any stale branch from a prior run.
+git(["fetch", "origin", BASE]);
+git(["branch", "-f", branch, "FETCH_HEAD"]);
+console.log(`  (based ${branch} on origin/${BASE})`);
 
 // Grab the lock on the host before launching the agent.
 gh(["issue", "edit", String(issue.number), "--remove-label", READY, "--add-label", LOCK]);
