@@ -1,5 +1,10 @@
 # In-Repo Issue Tracker — Specification
 
+> **Retired.** This repo has migrated to **GitHub Issues**
+> (`gh issue list` / `gh issue create`; reference as `#N`). The files in this
+> directory are kept for git history only — do not file new issues here. The
+> spec below is preserved as a record of the former workflow.
+
 **Version: 0.0.2**
 
 A lightweight, file-based issue tracker that lives inside the repository.

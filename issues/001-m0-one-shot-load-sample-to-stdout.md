@@ -44,3 +44,6 @@ serialization, and any network transport. Those are later milestones.
   liveness); `main.rs` reads `/proc/loadavg` and prints `load 1m 5m 15m` via an
   `ExitCode` shim. TDD red→green confirmed; `just check` and `just deps` green.
   Closes M0.
+- 2026-06-28: migrated to GitHub Issues as
+  [#1](https://github.com/Stromdahl/telltaled/issues/1). This file is now a
+  historical record only; the in-repo tracker is retired.

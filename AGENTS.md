@@ -36,19 +36,19 @@ overhead for capability, overhead wins; if you must spend it, spend it on purpos
 - **TDD**: every issue starts with a failing test; implement; refactor. Core
   invariants get `proptest` property tests, not just examples — plus a liveness
   test so a vacuous "reject everything" implementation can't pass.
-- **Issues**: file-based tracker per `issues/README.md` (In-Repo Issue Tracker
-  spec). Every issue lives at `issues/NNN-slug.md` and **never moves**; the
-  `status` frontmatter is the source of truth for open vs. closed. Create an
-  issue before starting work; reference it as `issues/NNN` in commits; never
-  move, rename, or delete issue files.
+- **Issues**: tracked on **GitHub Issues** (`gh issue list` / `gh issue create`).
+  Create an issue before starting work and reference it as `#N` in commits and
+  PRs. The former file-based tracker (`issues/`) is retired — those files are
+  kept for git history only; do not file new issues there. (`issues/README.md`
+  documents the legacy spec.)
 - **Milestones**: work climbs a milestone ladder (M0, M1, …) — each milestone a
   thin, shippable slice that ends with the gate green, not a big-bang. The current
   milestone is noted in the README.
 - **Docs-first**: record decisions as ADRs in `docs/adr/` (format in
   `docs/adr/README.md`). Keep design docs current as the code changes.
 - **Commits**: a single conventional-commit subject line, no body, no AI
-  co-author trailer — full convention in `docs/COMMIT_STYLE.md`. Reference issue
-  ids (`issues/NNN`). Commit **proactively** at coherent stopping points (one
+  co-author trailer — full convention in `docs/COMMIT_STYLE.md`. Reference
+  GitHub issue ids (`#N`). Commit **proactively** at coherent stopping points (one
   cohesive, non-broken change per commit; never a broken state or a secret).
   Pushing stays ask-first.
 
@@ -89,4 +89,5 @@ it *with a reason* — the number serves readability, not the other way around.
 - `justfile` — the check gate and tooling recipes. `clippy.toml` / `deny.toml`
   hold the guardrail thresholds and supply-chain policy; `[workspace.lints]` in
   the root `Cargo.toml` enables the lints (inherited via `[lints] workspace = true`).
-- `docs/adr/` — architecture decision records. `issues/` — the file-based tracker.
+- `docs/adr/` — architecture decision records. Issues live on GitHub Issues;
+  `issues/` holds the retired file-based tracker (kept for history).
