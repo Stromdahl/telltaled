@@ -1,6 +1,6 @@
 //! `telltaled` binary entry point — a thin shim over the `telltaled` library.
 //!
-//! M0 (issues/001): collect one load-average sample and write it to stdout, then
+//! M0 (#1): collect one load-average sample and write it to stdout, then
 //! exit. The shim owns the only I/O — reading `/proc/loadavg` — and hands the
 //! contents to the pure [`telltaled::loadavg::parse_loadavg`] core. Exits 0 on
 //! success, non-zero (with the cause on stderr) if the read or parse fails. No

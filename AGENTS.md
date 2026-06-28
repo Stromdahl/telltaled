@@ -38,9 +38,7 @@ overhead for capability, overhead wins; if you must spend it, spend it on purpos
   test so a vacuous "reject everything" implementation can't pass.
 - **Issues**: tracked on **GitHub Issues** (`gh issue list` / `gh issue create`).
   Create an issue before starting work and reference it as `#N` in commits and
-  PRs. The former file-based tracker (`issues/`) is retired — those files are
-  kept for git history only; do not file new issues there. (`issues/README.md`
-  documents the legacy spec.)
+  PRs.
 - **Milestones**: work climbs a milestone ladder (M0, M1, …) — each milestone a
   thin, shippable slice that ends with the gate green, not a big-bang. The current
   milestone is noted in the README.
@@ -89,5 +87,4 @@ it *with a reason* — the number serves readability, not the other way around.
 - `justfile` — the check gate and tooling recipes. `clippy.toml` / `deny.toml`
   hold the guardrail thresholds and supply-chain policy; `[workspace.lints]` in
   the root `Cargo.toml` enables the lints (inherited via `[lints] workspace = true`).
-- `docs/adr/` — architecture decision records. Issues live on GitHub Issues;
-  `issues/` holds the retired file-based tracker (kept for history).
+- `docs/adr/` — architecture decision records. Issues live on GitHub Issues.

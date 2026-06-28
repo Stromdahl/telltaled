@@ -8,7 +8,7 @@
 //! Overriding constraint: **low host overhead** — measuring a machine must never
 //! meaningfully perturb it (see `AGENTS.md`).
 //!
-//! The first collector is [`loadavg`] (M0, `issues/001`): a pure parser over
+//! The first collector is [`loadavg`] (M0, #1): a pure parser over
 //! `/proc/loadavg`. New signals follow the same shape — pure logic here, I/O in
 //! the shim.
 

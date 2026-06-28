@@ -1,4 +1,4 @@
-//! End-to-end check of the `telltaled` binary (M0, issues/001): one invocation
+//! End-to-end check of the `telltaled` binary (M0, #1): one invocation
 //! reads `/proc/loadavg`, prints a single sample line, and exits 0. This observes
 //! the exit code and stdout shape the way an operator would, complementing the
 //! pure-parser unit/property tests in the library.

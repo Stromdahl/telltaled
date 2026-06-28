@@ -44,10 +44,9 @@ Add area prefixes (`cli:`, `core:`) where a repo's log already uses them.
 
 ## Referencing issues
 
-When a commit relates to a tracked issue, reference it as `issues/NNN` in the
-subject (or trailing, if it fits): `feat: durable audit backend (issues/009)`.
-This is a logical reference — the file may be open or closed, but the id is
-unique and searchable.
+When a commit relates to a tracked issue, reference it as `#N` in the
+subject (or trailing, if it fits): `feat: durable audit backend (#9)`.
+Issues live on GitHub Issues; the id is unique and links automatically.
 
 ## No AI attribution
 
@@ -58,7 +57,7 @@ collaborator; the commit message carries the subject and nothing else.
 ## Examples
 
 ```
-feat: add token-bucket rate limiter to the public API (issues/042)
+feat: add token-bucket rate limiter to the public API (#42)
 fix: reject expired sessions instead of silently refreshing them
 security: require auth before any write endpoint is reachable
 test: property test that the parser round-trips every input
