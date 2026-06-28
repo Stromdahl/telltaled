@@ -4,6 +4,9 @@
 //! interval (default 60 s), prints `load …` to stdout immediately on start,
 //! then once per interval. A signal thread (#8) sends on a shutdown channel
 //! when SIGTERM or SIGINT arrives, waking the interruptible wait immediately.
+//!
+//! M2 (#3): interval and push credentials come from environment variables via
+//! [`telltaled::config::parse_config`]; missing required vars exit non-zero.
 
 use std::io::Write as _;
 use std::process::ExitCode;
@@ -14,10 +17,16 @@ use telltaled::{Clock, Sink};
 /// The kernel file exposing the 1/5/15-minute load averages.
 const LOADAVG_PATH: &str = "/proc/loadavg";
 
-/// Default sampling interval in seconds.
-const INTERVAL_SECS: u64 = 60;
-
 fn main() -> ExitCode {
+    let vars: std::collections::HashMap<String, String> = std::env::vars().collect();
+    let config = match telltaled::config::parse_config(&vars) {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("telltaled: configuration error: {e}");
+            return ExitCode::FAILURE;
+        }
+    };
+
     let (shutdown_tx, shutdown_rx) = mpsc::channel::<()>();
     if let Err(e) = register_signals(shutdown_tx) {
         eprintln!("telltaled: signal setup: {e}");
@@ -25,7 +34,13 @@ fn main() -> ExitCode {
     }
     let mut sink = StdoutSink;
     let clock = RealClock;
-    telltaled::run_loop(LOADAVG_PATH, &mut sink, &clock, INTERVAL_SECS, &shutdown_rx);
+    telltaled::run_loop(
+        LOADAVG_PATH,
+        &mut sink,
+        &clock,
+        config.interval_secs,
+        &shutdown_rx,
+    );
     ExitCode::SUCCESS
 }
 

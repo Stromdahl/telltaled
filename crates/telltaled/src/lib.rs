@@ -12,6 +12,7 @@
 //! `/proc/loadavg`. New signals follow the same shape — pure logic here, I/O in
 //! the shim.
 
+pub mod config;
 pub mod loadavg;
 
 use std::sync::mpsc::Receiver;
