@@ -1,0 +1,14 @@
+/target
+*.rs.bk
+
+# cargo-mutants scratch output (`just mutants`)
+/mutants.out
+/mutants.out.old
+
+# transient git worktrees created by agent orchestration
+/.claude/worktrees
+
+# never commit secrets or runtime data
+/data
+*.age
+.env

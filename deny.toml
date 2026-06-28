@@ -1,0 +1,50 @@
+# cargo-deny: supply-chain guardrails. See AGENTS.md. Run via `just deps`.
+# Keep this small and tight — fewer moving parts is the goal.
+
+[graph]
+# Pin the dependency graph to the triple(s) you actually build and run. This
+# keeps the supply-chain check focused and stops platform-only transitive deps
+# (and their licenses) from leaking into the allow-list for code that never
+# compiles for you. Uncomment and set your target(s); add more deliberately if
+# the deploy target widens.
+# targets = ["x86_64-unknown-linux-gnu"]
+
+[advisories]
+# RUSTSEC advisories are denied by default (vulnerabilities, unmaintained,
+# yanked). Add IDs here only with a written reason if one must be tolerated.
+ignore = []
+
+[licenses]
+# Permissive licenses we accept. A copyleft/unknown license should be a
+# deliberate decision, so it fails the gate until added here. Start minimal:
+# a new license must be added on purpose — that failure is the guardrail
+# working, not a nuisance. Trim/extend to exactly what your tree pulls in.
+# (With no dependencies yet you'll see harmless "license not encountered"
+# warnings for these — they clear as soon as real deps use them.)
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Unicode-3.0",   # common in the proc-macro tree (unicode-ident). Permissive.
+    "Unlicense",
+]
+confidence-threshold = 0.8
+
+[licenses.private]
+# Don't license-check your own unpublished workspace crates.
+ignore = true
+
+[bans]
+multiple-versions = "warn"   # duplicate versions bloat the tree; nudge, don't block.
+wildcards = "deny"           # no `*` version requirements — pin what we depend on.
+# Internal workspace path deps carry no version requirement and would trip the
+# wildcard ban. Exempt path deps; the ban still bites on wildcard requirements
+# for *external* registry crates — the actual risk.
+allow-wildcard-paths = true
+deny = []                    # add specific crate bans here as needed.
+
+[sources]
+# Only crates.io. Unknown registries or git sources must be added deliberately.
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

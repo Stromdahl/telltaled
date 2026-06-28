@@ -1,0 +1,46 @@
+# Code-quality guardrails (clippy side). See AGENTS.md.
+#
+# These thresholds are *starting points*, enforced at warn-level. The lints
+# themselves are enabled in `[workspace.lints]` in the root Cargo.toml; the
+# numbers below only take effect because those lints are on. `just check`
+# runs clippy with `-D warnings`, so a crossed threshold fails the gate.
+# Tune as the codebase grows — a number is a conversation-starter, not a law.
+
+# --- Complexity / size (maps to the agentic-coding guardrail table) ---
+cognitive-complexity-threshold = 10   # table target is <= 15, but clippy's
+                                      # cognitive metric severely undercounts:
+                                      # empirically a fn with a loop + three
+                                      # if/else-if/else chains + a while + a
+                                      # 5-arm match scores only 10. At 15 this
+                                      # lint would be inert. 10 bites on code
+                                      # uglier than that while clean code passes.
+                                      # Directional, not a true metric.
+too-many-lines-threshold       = 60   # table: function length <= 40-60 lines.
+too-many-arguments-threshold   = 5    # table: parameter count <= 4-5.
+excessive-nesting-threshold    = 4    # table: nesting depth <= 3. Verified: at
+                                      # module top level depth 4 trips, 3 is
+                                      # clean. An inline `mod {}` counts as a
+                                      # level, so code inside one (e.g. `mod
+                                      # tests`) is held one level flatter.
+
+# --- Robustness: unwrap/expect/panic/dbg are denied in production code, but
+#     are idiomatic in tests, so allow them there. ---
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-panic-in-tests  = true
+allow-dbg-in-tests    = true
+
+# --- Architecture enforcement (a high-value, project-specific guardrail). ---
+# Ban specific APIs so layers can't reach around an intended boundary. Fill this
+# in as the architecture firms up — it turns an architectural rule into a lint
+# the compiler enforces, instead of a convention people forget. Examples:
+#   disallowed-methods = [
+#     { path = "std::process::Command::new",
+#       reason = "subprocess egress must route through the designated module, not ad hoc" },
+#   ]
+#   disallowed-types = [
+#     { path = "std::net::TcpStream",
+#       reason = "raw network access belongs in the networking layer" },
+#   ]
+disallowed-methods = []
+disallowed-types   = []

@@ -1,0 +1,29 @@
+[workspace]
+resolver = "3"
+members = ["crates/telltaled"]
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.85"
+
+# Code-quality guardrails, inherited by every member via `[lints] workspace = true`.
+# Levels are `warn`; `just check` runs `clippy -D warnings` to fail the gate on any
+# of them. Numeric thresholds live in clippy.toml. See AGENTS.md.
+[workspace.lints.rust]
+# Most application code never needs `unsafe`; forbid it by default and opt out
+# deliberately (e.g. relax to "deny" with a reason) if you take on FFI or similar.
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+# Complexity / size — thresholds in clippy.toml.
+cognitive_complexity = "warn"
+too_many_lines       = "warn"
+too_many_arguments   = "warn"
+excessive_nesting    = "warn"
+# Robustness: keep panics out of production code (allowed in tests via clippy.toml).
+unwrap_used    = "warn"
+expect_used    = "warn"
+panic          = "warn"
+todo           = "warn"
+unimplemented  = "warn"
+dbg_macro      = "warn"

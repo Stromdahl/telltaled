@@ -1,0 +1,26 @@
+[package]
+name = "telltaled"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+description = "System telemetry daemon: surfaces the hidden state of a machine."
+publish = false               # personal/unpublished; flip to publish deliberately.
+
+# `telltaled` is one package exposing both a library (the testable core) and a
+# thin binary (the resident daemon). Cargo auto-detects src/lib.rs and src/main.rs.
+[[bin]]
+name = "telltaled"
+path = "src/main.rs"
+
+[lib]
+name = "telltaled"
+path = "src/lib.rs"
+
+[dependencies]
+
+[dev-dependencies]
+# proptest = "1"              # property tests for invariants; uncomment when you need it.
+
+# Inherit the workspace-wide quality guardrails (see root Cargo.toml).
+[lints]
+workspace = true
