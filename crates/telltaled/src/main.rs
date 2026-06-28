@@ -1,9 +1,9 @@
 //! `telltaled` binary entry point — a thin shim over the `telltaled` library.
 //!
-//! M1 (#7): resident sample-and-emit loop. Reads `/proc/loadavg` once per
+//! M1 (#7, #8): resident sample-and-emit loop. Reads `/proc/loadavg` once per
 //! interval (default 60 s), prints `load …` to stdout immediately on start,
-//! then once per interval. The wait is interruptible via an mpsc channel so a
-//! future sibling can wake it on SIGTERM without polling.
+//! then once per interval. A signal thread (#8) sends on a shutdown channel
+//! when SIGTERM or SIGINT arrives, waking the interruptible wait immediately.
 
 use std::io::Write as _;
 use std::process::ExitCode;
@@ -18,11 +18,29 @@ const LOADAVG_PATH: &str = "/proc/loadavg";
 const INTERVAL_SECS: u64 = 60;
 
 fn main() -> ExitCode {
-    let (_shutdown_tx, shutdown_rx) = mpsc::channel::<()>();
+    let (shutdown_tx, shutdown_rx) = mpsc::channel::<()>();
+    if let Err(e) = register_signals(shutdown_tx) {
+        eprintln!("telltaled: signal setup: {e}");
+        return ExitCode::FAILURE;
+    }
     let mut sink = StdoutSink;
     let clock = RealClock;
     telltaled::run_loop(LOADAVG_PATH, &mut sink, &clock, INTERVAL_SECS, &shutdown_rx);
     ExitCode::SUCCESS
+}
+
+/// Spawn a background thread that listens for SIGTERM/SIGINT and sends a
+/// shutdown notification on `tx` when the first signal arrives.
+fn register_signals(tx: mpsc::Sender<()>) -> Result<(), Box<dyn std::error::Error>> {
+    use signal_hook::consts::{SIGINT, SIGTERM};
+    use signal_hook::iterator::Signals;
+
+    let mut signals = Signals::new([SIGTERM, SIGINT])?;
+    std::thread::spawn(move || {
+        signals.forever().next();
+        let _ = tx.send(());
+    });
+    Ok(())
 }
 
 struct StdoutSink;
