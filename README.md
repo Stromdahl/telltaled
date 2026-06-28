@@ -16,10 +16,10 @@ wins. See [`AGENTS.md`](AGENTS.md) for how that constraint is applied.
 
 ## Status
 
-**Milestone M0** — bootstrapping. The workspace builds and `just check` is green;
-the first functional slice is tracked in [`issues/001`](issues/001-m0-one-shot-load-sample-to-stdout.md).
+**Milestone M0 — shipped.** `telltaled` collects one `/proc/loadavg` sample and
+writes it to stdout, then exits (see closed [`issues/001`](issues/001-m0-one-shot-load-sample-to-stdout.md)).
 Work climbs a milestone ladder (M0, M1, …), each a thin shippable slice that ends
-with the gate green.
+with the gate green; M1 (a resident sampling loop) is next.
 
 ## Layout
 
