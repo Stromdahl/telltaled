@@ -4,12 +4,37 @@
 //!   and the daemon exits 0 promptly, rather than waiting out the full 60 s interval.
 
 use std::io::{BufRead as _, BufReader};
-use std::process::{Command, Stdio};
+use std::process::{Child, Command, Stdio};
 use std::sync::mpsc;
 use std::time::Duration;
 
 /// `CARGO_BIN_EXE_<name>` is set by Cargo for integration tests of a binary.
 const BIN: &str = env!("CARGO_BIN_EXE_telltaled");
+
+/// Sends `kill -<sig>` to `child` and asserts it exits 0 within 2 s.
+#[allow(clippy::expect_used, clippy::panic)]
+fn send_signal_and_assert_clean_exit(mut child: Child, sig: &str) {
+    let pid = child.id();
+    Command::new("kill")
+        .arg(format!("-{sig}"))
+        .arg(pid.to_string())
+        .status()
+        .expect("`kill` command should run");
+
+    let (tx, rx) = mpsc::channel();
+    std::thread::spawn(move || {
+        let _ = tx.send(child.wait());
+    });
+    match rx.recv_timeout(Duration::from_secs(2)) {
+        Ok(Ok(status)) => assert!(
+            status.success(),
+            "expected exit 0 after SIG{sig}, got {:?}",
+            status,
+        ),
+        Ok(Err(e)) => panic!("child.wait() failed: {e}"),
+        Err(_) => panic!("telltaled did not exit within 2 s after SIG{sig}"),
+    }
+}
 
 #[test]
 fn emits_load_sample_immediately_then_stays_resident() {
@@ -56,28 +81,7 @@ fn sigterm_causes_clean_prompt_shutdown() {
         first_line,
     );
 
-    // Send SIGTERM via `kill` (avoids unsafe libc / nix dev-dep).
-    let pid = child.id();
-    Command::new("kill")
-        .arg("-TERM")
-        .arg(pid.to_string())
-        .status()
-        .expect("`kill` command should run");
-
-    // The signal must wake the interruptible wait; assert exit 0 within 2 s.
-    let (tx, rx) = mpsc::channel();
-    std::thread::spawn(move || {
-        let _ = tx.send(child.wait());
-    });
-    match rx.recv_timeout(Duration::from_secs(2)) {
-        Ok(Ok(status)) => assert!(
-            status.success(),
-            "expected exit 0 after SIGTERM, got {:?}",
-            status,
-        ),
-        Ok(Err(e)) => panic!("child.wait() failed: {e}"),
-        Err(_) => panic!("telltaled did not exit within 2 s after SIGTERM"),
-    }
+    send_signal_and_assert_clean_exit(child, "TERM");
 }
 
 #[test]
@@ -100,26 +104,5 @@ fn sigint_causes_clean_prompt_shutdown() {
         first_line,
     );
 
-    // Send SIGINT via `kill` (avoids unsafe libc / nix dev-dep).
-    let pid = child.id();
-    Command::new("kill")
-        .arg("-INT")
-        .arg(pid.to_string())
-        .status()
-        .expect("`kill` command should run");
-
-    // The signal must wake the interruptible wait; assert exit 0 within 2 s.
-    let (tx, rx) = mpsc::channel();
-    std::thread::spawn(move || {
-        let _ = tx.send(child.wait());
-    });
-    match rx.recv_timeout(Duration::from_secs(2)) {
-        Ok(Ok(status)) => assert!(
-            status.success(),
-            "expected exit 0 after SIGINT, got {:?}",
-            status,
-        ),
-        Ok(Err(e)) => panic!("child.wait() failed: {e}"),
-        Err(_) => panic!("telltaled did not exit within 2 s after SIGINT"),
-    }
+    send_signal_and_assert_clean_exit(child, "INT");
 }
