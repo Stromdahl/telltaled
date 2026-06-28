@@ -1,0 +1,8 @@
+# The sandcastle image has no COPY steps; keep the build context tiny.
+target
+node_modules
+.git
+.sandcastle/worktrees
+.sandcastle/logs
+.sandcastle/patches
+.sandcastle/.env

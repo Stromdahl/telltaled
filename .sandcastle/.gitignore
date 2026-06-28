@@ -1,0 +1,5 @@
+# Secrets and sandcastle runtime artifacts — never commit.
+.env
+logs/
+worktrees/
+patches/

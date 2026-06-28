@@ -8,6 +8,9 @@
 # transient git worktrees created by agent orchestration
 /.claude/worktrees
 
+# node tooling for the sandcastle agent harness (see .sandcastle/)
+/node_modules
+
 # never commit secrets or runtime data
 /data
 *.age
