@@ -1,9 +1,10 @@
 //! `telltaled` binary entry point — a thin shim over the `telltaled` library.
 //!
-//! M1 (#7): resident sample-and-emit loop. Reads `/proc/loadavg` once per
-//! interval (default 60 s), prints `load …` to stdout immediately on start,
-//! then once per interval. The wait is interruptible via an mpsc channel so a
-//! future sibling can wake it on SIGTERM without polling.
+//! M1 (#7, #8): resident sample-and-emit loop with graceful shutdown. Reads
+//! `/proc/loadavg` once per interval (default 60 s), prints `load …` to stdout
+//! immediately on start, then once per interval. SIGTERM and SIGINT are caught
+//! by a dedicated thread and routed through an mpsc channel so the interruptible
+//! wait wakes immediately rather than waiting out the full interval.
 
 use std::io::Write as _;
 use std::process::ExitCode;
@@ -18,11 +19,40 @@ const LOADAVG_PATH: &str = "/proc/loadavg";
 const INTERVAL_SECS: u64 = 60;
 
 fn main() -> ExitCode {
-    let (_shutdown_tx, shutdown_rx) = mpsc::channel::<()>();
+    let (shutdown_tx, shutdown_rx) = mpsc::channel::<()>();
+    let signal_tx = shutdown_tx.clone();
+    std::thread::spawn(move || signal_thread(signal_tx));
+
     let mut sink = StdoutSink;
     let clock = RealClock;
     telltaled::run_loop(LOADAVG_PATH, &mut sink, &clock, INTERVAL_SECS, &shutdown_rx);
+
+    // Drop explicitly after run_loop so the channel stays open for its duration.
+    drop(shutdown_tx);
     ExitCode::SUCCESS
+}
+
+/// Listens for SIGTERM/SIGINT and forwards each arrival as a shutdown signal.
+/// Uses the safe signal-hook iterator API (`#![forbid(unsafe_code)]` bans the
+/// low-level register alternative). If registration fails, the error is logged
+/// and the thread exits; the cloned sender keeps the channel alive so the loop
+/// is unaffected.
+fn signal_thread(tx: mpsc::Sender<()>) {
+    use signal_hook::consts::{SIGINT, SIGTERM};
+    use signal_hook::iterator::Signals;
+
+    let mut sigs = match Signals::new([SIGTERM, SIGINT]) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("telltaled: signal handler: {e}");
+            return;
+        }
+    };
+    for _ in sigs.forever() {
+        if tx.send(()).is_err() {
+            break;
+        }
+    }
 }
 
 struct StdoutSink;
