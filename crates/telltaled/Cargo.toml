@@ -12,6 +12,7 @@ publish = false               # personal/unpublished; flip to publish deliberate
 # targets and names them after the package.
 
 [dependencies]
+signal-hook = "0.4"
 
 [dev-dependencies]
 proptest = "1"                # property tests for the parser invariants (#1).
